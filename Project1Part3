@@ -1,0 +1,101 @@
+# Title: Towers of Hanoi				Filename: Project1Part3
+# Author: Ian Catapano					Date: 2/26/2017
+# Description: Solve the Towers of Hanoi puzzle recursively
+# Input: Number of discs to be used
+# Output: The number of moves it takes to complete the puzzle
+##################################### Data segment ####################################
+.data
+prompt: .asciiz "Enter number of disks>  "
+nline: .asciiz "\n"
+to: .asciiz "\nto peg "
+from: .asciiz "\nfrom peg "
+move: .asciiz "\nMove disk "
+
+#################################### Code segment #####################################
+.text 
+.globl main
+main:				# main program entry
+	li $v0, 4 		# Syscall code to print string
+	la $a0, prompt		# Load address of string prompt
+	syscall			# Print string
+	li $v0, 5		# Syscall code to get integer input
+	syscall			# Get integer
+	add $a0, $v0, $zero	# Copy integer to argument variable
+	addi $a1, $zero, 1	# Starting peg
+	addi $a2, $zero, 2	# Extra peg
+	addi $a3, $zero, 3	# Finishing peg
+	jal hanoi		# Jump and link to recursive loop
+	li $v0, 10		# Syscall code to exit progrm
+	syscall			# Exit program
+	
+hanoi:
+	addi $t0, $zero, 1	# Temp to hold the value 1
+	add $t1, $a0, $zero	# Copy number of disks to temp variable
+	beq $t1, $t0, final	# If 1 disk is left, if so move it to finish peg	
+	addi $sp, $sp, -20	# Adjust stack pointer
+	sw $a0, 0($sp)		# Save current value of $a0
+	sw $a1, 4($sp)		# Save current value of $a1
+	sw $a2, 8($sp)		# Save current value of $a2
+	sw $a3, 12($sp)		# Save current value of $a3
+	sw $ra, 16($sp)		# Save current return address
+	add $t2, $a2, $zero	# Copy temp peg to $t2
+    	add $a2, $a3, $zero	# Copy end peg to temp peg
+    	add $a3, $t2, $zero	# Copy $t2 to end peg
+	addi $a0, $a0, -1	# Decrement disk value by 1
+	jal hanoi		# Jump to hanoi and set return address to next line
+	lw $a0, 0($sp)		# Load value for $a0
+	lw $a1, 4($sp)		# Load value for $a1
+	lw $a2, 8($sp)		# Load value for $a2
+	lw $a3, 12($sp)		# Load value for $a3
+	lw $ra, 16($sp)		# Load return address value
+	addi $t0, $zero, 1	# Temp to hold the value 1
+	add $t1, $a0, $zero	# Copy number of disks to temp variable
+	li $v0, 4		# Syscall to print string
+	la $a0, move		# Load address for string move
+	syscall			# Print string
+	li $v0, 1		# Syscall to print integer
+	add $a0, $t1, $zero	# Copy disk value to print
+	syscall			# Print disk value
+	li $v0, 4		# Syscall to print string
+	la $a0, from		# Load address of string from
+	syscall			# Print string from
+	li $v0, 1		# Syscall to print integer
+	add $a0, $a1, $zero	# Copy start peg
+	syscall			# Print start peg number (1)
+	li $v0, 4		# Syscall to print string
+	la $a0, to		# Load address for string to
+	syscall			# Print string
+	li $v0, 1		# Syscall to print integer
+	add $a0, $a3, $zero	# Copy to end peg
+	syscall			# Print end peg number (3)
+	add $a0, $t1, $zero	# Copy number of disks back to aug var
+	add $t2, $a2, $zero	# Copy temp peg to $t2
+    	add $a2, $a1, $zero	# Copy start peg to temp peg
+    	add $a1, $t2, $zero	# Copy $t2 to start peg
+	addi $a0, $a0, -1	# Decrement the value of the disk by 1
+	jal hanoi		# Jump to hanoi and link return address of next line
+	lw $ra, 16($sp)		# Load value of return address
+	addi $sp, $sp, 20	# Restore stack pointer
+	jr $ra			# Jump to return address
+	
+final:
+	li $v0, 4		# Syscall to print string
+	la $a0, move		# Load address for string move
+	syscall			# Print string
+	li $v0, 1		# Syscall to print integer
+	add $a0, $t1, $zero	# Copy disk value to print
+	syscall			# Print disk value
+	li $v0, 4		# Syscall to print string
+	la $a0, from		# Load address of string from
+	syscall			# Print string from
+	li $v0, 1		# Syscall to print integer
+	add $a0, $a1, $zero	# Copy start peg
+	syscall			# Print start peg number (1)
+	li $v0, 4		# Syscall to print string
+	la $a0, to		# Load address for string to
+	syscall			# Print string
+	li $v0, 1		# Syscall to print integer
+	add $a0, $a3, $zero	# Copy end peg
+	syscall			# Print end peg number (3)
+	add $a0, $t1, $zero	# Copy number of disks back to aug var
+	jr $ra			# Jump to return address

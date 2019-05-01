@@ -1,0 +1,22 @@
+	addi $s0, $s0, 10			# Number of values in array (n)
+	add $s1, $s1, $zero			# First loop counter (i)
+	add $s2, $s2, $zero			# Second loop counter (j)
+	lw $s3, 0($s3)				# Base address of array
+floop:
+	beq $s0, $s1, exit			# When i = n end loop
+	sloop:
+		beq $s0, $s2, end		# When j = n jump to end of loop
+		lw $t0, 0($s3)			# Store value of position 0 in $t0
+		lw $t1, 4($s4)			# Store value of position 4 in $t1
+		slt $t2, $t1, $t0		# Check it secong value is less then first
+		beq $t2, $zero, next		# If less move to next values
+		sw $t1, 0($s3)			# Place value of second element in first
+		sw $t0, 4($s3)			# Place value of first element in seconf
+	next:	addi $s2, $s2, 1		# Increment counter j by 1
+		sll $s3, $s3, 2			# Shift the array by 4
+		j sloop				# Jump to the second loop
+end:	addi $s1, $s1, 1			# Increment counter i by 1
+	j floop					# Jump to first loop
+exit:
+	li $v0, 10				# Syscall code to exit progrm
+	syscall					# Exit program
